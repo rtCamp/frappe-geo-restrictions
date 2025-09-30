@@ -34,7 +34,7 @@
   "link_filters": null,
   "mandatory_depends_on": null,
   "modified": "2025-09-29 10:07:58.641924",
-  "module": "Frappe IP Ban",
+  "module": "Frappe Geo Restrictions",
   "name": "Country-custom_access_tier",
   "no_copy": 0,
   "non_negative": 0,

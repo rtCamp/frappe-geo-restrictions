@@ -1,7 +1,7 @@
 import frappe
 from frappe.utils.user import is_website_user
 
-from frappe_ip_ban.utils.constants import ACCESS_MODES
+from frappe_geo_restrictions.utils.constants import ACCESS_MODES
 
 
 def before_validate(doc, method=None):

@@ -1,6 +1,6 @@
 import frappe
 
-from frappe_ip_ban.utils.constants import ACCESS_MODES
+from frappe_geo_restrictions.utils.constants import ACCESS_MODES
 
 
 def boot_session(bootinfo):
