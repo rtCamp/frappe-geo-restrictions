@@ -1,5 +1,5 @@
 [project]
-name = "frappe_ip_ban"
+name = "frappe_geo_restrictions"
 authors = [
     { name = "rtCamp", email = "frappe@rtcamp.com"}
 ]

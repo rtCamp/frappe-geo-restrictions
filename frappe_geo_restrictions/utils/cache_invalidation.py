@@ -1,6 +1,6 @@
 import frappe
 
-from frappe_ip_ban.utils.constants import (
+from frappe_geo_restrictions.utils.constants import (
 	ACCESS_TIER_CACHE_PREFIX,
 	BYPASS_USERS_CACHE_PREFIX,
 	IP_SETTINGS_CACHE_PREFIX,
@@ -10,8 +10,8 @@ from frappe_ip_ban.utils.constants import (
 def invalidate_ip_settings_cache(doc, method=None):
 	cache = frappe.cache()
 	cache.delete_key(IP_SETTINGS_CACHE_PREFIX + "global")
-	if hasattr(frappe.local, "ip_ban_settings"):
-		delattr(frappe.local, "ip_ban_settings")
+	if hasattr(frappe.local, "georestriction_settings"):
+		delattr(frappe.local, "georestriction_settings")
 	invalidate_bypass_users_cache()
 
 

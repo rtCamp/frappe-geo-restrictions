@@ -5,8 +5,8 @@
 2. Install the app on the site.
 
 ```bash
-bench get-app https://github.com/rtCamp/frappe-ip-ban
-bench --site [site-name] install-app frappe_ip_ban
+bench get-app https://github.com/rtCamp/frappe-geo-restrictions
+bench --site [site-name] install-app frappe_geo_restrictions
 ```
 
 2. Set up [pre-commit](https://pre-commit.com/) in the app.

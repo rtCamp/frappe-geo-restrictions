@@ -5,24 +5,24 @@ from frappe import _
 from frappe.utils.user import is_website_user
 from werkzeug.exceptions import HTTPException
 
-from frappe_ip_ban.utils.constants import (
+from frappe_geo_restrictions.utils.constants import (
 	ACCESS_MODES,
 	ACCESS_TIER_CACHE_PREFIX,
 	BYPASS_USERS_CACHE_PREFIX,
 	BYPASS_USERS_CACHE_TTL,
 	IP_SETTINGS_CACHE_PREFIX,
 )
-from frappe_ip_ban.utils.ip import get_country_from_ip, get_ip_address
+from frappe_geo_restrictions.utils.ip import get_country_from_ip, get_ip_address
 
 
 def get_ip_settings():
-	if hasattr(frappe.local, "ip_ban_settings"):
-		return frappe.local.ip_ban_settings
+	if hasattr(frappe.local, "georestriction_settings"):
+		return frappe.local.georestriction_settings
 	settings = frappe.cache().get_value(IP_SETTINGS_CACHE_PREFIX + "global")
 	if settings is None:
 		settings = frappe.get_single("GeoRestriction Settings")
 		frappe.cache().set_value(IP_SETTINGS_CACHE_PREFIX + "global", settings, expires_in_sec=3600)
-	frappe.local.ip_ban_settings = settings
+	frappe.local.georestriction_settings = settings
 	return settings
 
 
@@ -257,7 +257,7 @@ def after_request(response):
 			html_str = html_bytes.decode("utf-8") if isinstance(html_bytes, bytes) else html_bytes
 
 			# Inject your script before the last </body> (case-insensitive)
-			script_tag = '<script src="/assets/frappe_ip_ban/js/website.js"></script>'
+			script_tag = '<script src="/assets/frappe_geo_restrictions/js/website.js"></script>'
 			pattern = re.compile(r"</body>", re.IGNORECASE)
 			matches = list(pattern.finditer(html_str))
 			if matches:
