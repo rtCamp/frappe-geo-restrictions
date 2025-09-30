@@ -21,6 +21,17 @@ app_license = "agpl-3.0"
 # 	}
 # ]
 
+fixtures = [
+	{
+		"dt": "Property Setter",
+		"filters": [["module", "in", ["Frappe IP Ban"]]],
+	},
+	{
+		"dt": "Custom Field",
+		"filters": [["module", "in", ["Frappe IP Ban"]]],
+	},
+]
+
 # Includes in <head>
 # ------------------
 
@@ -123,22 +134,32 @@ app_license = "agpl-3.0"
 # permission_query_conditions = {
 # 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+
+has_permission = {
+	"*": "frappe_ip_ban.utils.has_permission",
+}
 
 # Document Events
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"*": {
+		"before_validate": "frappe_ip_ban.doc_events.all.before_validate",
+	},
+	"Country": {
+		"on_change": "frappe_ip_ban.utils.cache_invalidation.clear_countries_cache",
+	},
+	"GeoRestriction Settings": {
+		"on_change": "frappe_ip_ban.utils.cache_invalidation.invalidate_ip_settings_cache",
+	},
+	"User": {
+		"on_change": "frappe_ip_ban.utils.cache_invalidation.on_user_and_role_change",
+	},
+	"Role": {
+		"on_change": "frappe_ip_ban.utils.cache_invalidation.on_user_and_role_change",
+	},
+}
 
 # Scheduled Tasks
 # ---------------
@@ -191,8 +212,8 @@ app_license = "agpl-3.0"
 
 # Request Events
 # ----------------
-# before_request = ["frappe_ip_ban.utils.before_request"]
-# after_request = ["frappe_ip_ban.utils.after_request"]
+before_request = ["frappe_ip_ban.utils.before_request"]
+after_request = ["frappe_ip_ban.utils.after_request"]
 
 # Job Events
 # ----------
@@ -231,9 +252,10 @@ app_license = "agpl-3.0"
 # ]
 
 # Automatically update python controller files with type annotations for this app.
-# export_python_type_annotations = True
+export_python_type_annotations = True
 
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+extend_bootinfo = "frappe_ip_ban.context.boot_session"
