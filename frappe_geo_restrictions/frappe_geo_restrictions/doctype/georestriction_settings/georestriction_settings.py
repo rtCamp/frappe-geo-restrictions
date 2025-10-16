@@ -22,10 +22,11 @@ class GeoRestrictionSettings(Document):
 		bypass_system_users: DF.Check
 		enabled: DF.Check
 		geoip_account_id: DF.Data | None
+		geoip_db_path: DF.Data | None
 		geoip_host: DF.Data | None
 		geoip_license_key: DF.Password | None
 		inject_readonly_script: DF.Check
-		ip_provider: DF.Literal["IPInfo.io", "MaxMind"]
+		ip_provider: DF.Literal["IPInfo.io", "MaxMind API", "MaxMind DB"]
 		ipinfo_token: DF.Password | None
 	# end: auto-generated types
 

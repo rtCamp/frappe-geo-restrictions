@@ -5,6 +5,9 @@ from frappe_geo_restrictions.utils.constants import (
 	BYPASS_USERS_CACHE_PREFIX,
 	IP_SETTINGS_CACHE_PREFIX,
 )
+from frappe_geo_restrictions.utils.ip import _get_country_from_ip
+
+# TODO: Add test cases. Reference: https://github.com/rtCamp/frappe-geo-restrictions/pull/2#discussion_r2405551148
 
 
 def invalidate_ip_settings_cache(doc, method=None):
@@ -13,6 +16,7 @@ def invalidate_ip_settings_cache(doc, method=None):
 	if hasattr(frappe.local, "georestriction_settings"):
 		delattr(frappe.local, "georestriction_settings")
 	invalidate_bypass_users_cache()
+	_get_country_from_ip.clear_cache()
 
 
 def invalidate_bypass_users_cache(user: str | None = None):

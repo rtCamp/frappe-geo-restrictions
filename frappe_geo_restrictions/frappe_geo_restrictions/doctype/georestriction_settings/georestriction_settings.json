@@ -10,6 +10,7 @@
   "ip_provider",
   "ipinfo_token",
   "geoip_host",
+  "geoip_db_path",
   "geoip_account_id",
   "geoip_license_key",
   "column_break_xkwb",
@@ -22,20 +23,20 @@
  ],
  "fields": [
   {
-   "depends_on": "eval:doc.ip_provider===\"MaxMind\";",
+   "depends_on": "eval:doc.ip_provider===\"MaxMind API\";",
    "fieldname": "geoip_account_id",
    "fieldtype": "Data",
    "label": "GeoIP Account ID"
   },
   {
-   "depends_on": "eval:doc.ip_provider===\"MaxMind\";",
+   "depends_on": "eval:doc.ip_provider===\"MaxMind API\";",
    "fieldname": "geoip_license_key",
    "fieldtype": "Password",
    "label": "GeoIP License Key"
   },
   {
    "default": "geolite.info",
-   "depends_on": "eval:doc.ip_provider===\"MaxMind\";",
+   "depends_on": "eval:doc.ip_provider===\"MaxMind API\";",
    "fieldname": "geoip_host",
    "fieldtype": "Data",
    "label": "GeoIP Host"
@@ -45,7 +46,7 @@
    "fieldname": "ip_provider",
    "fieldtype": "Select",
    "label": "IP Provider",
-   "options": "IPInfo.io\nMaxMind"
+   "options": "IPInfo.io\nMaxMind API\nMaxMind DB"
   },
   {
    "depends_on": "eval:doc.ip_provider===\"IPInfo.io\";",
@@ -106,13 +107,19 @@
    "fieldname": "inject_readonly_script",
    "fieldtype": "Check",
    "label": "Inject readonly script to website pages"
+  },
+  {
+   "depends_on": "eval:doc.ip_provider===\"MaxMind DB\";",
+   "fieldname": "geoip_db_path",
+   "fieldtype": "Data",
+   "label": "GeoIP DB Path"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-09-30 15:22:44.409260",
+ "modified": "2025-10-16 04:45:12.505861",
  "modified_by": "Administrator",
  "module": "Frappe Geo Restrictions",
  "name": "GeoRestriction Settings",

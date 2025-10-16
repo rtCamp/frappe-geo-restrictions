@@ -7,7 +7,7 @@ Control user access (Full, Read-Only, or No Access) based on the country detecte
 - Set an Access Tier on each Country: Full / Read-Only / No Access
 - Each request is classified early; the most restrictive rule wins
 - Optional bypass by role or user type
-- Auto IP → Country via IPInfo.io or MaxMind
+- Auto IP → Country via IPInfo.io or MaxMind API or MaxMind DB
 - Read-only enforced on server and (optionally) in the UI
 - Hooks let you override country detection or adjust decisions
 - Layered caching with safe invalidation
@@ -124,11 +124,12 @@ Fieldname: `custom_access_tier` (Select: Full Access / Read-Only Access / No Acc
 | Field | Purpose |
 |-------|---------|
 | enabled | Master toggle |
-| ip_provider | IPInfo.io / MaxMind |
+| ip_provider | IPInfo.io / MaxMind API |
 | ipinfo_token | IPInfo token |
 | geoip_account_id | MaxMind account ID |
 | geoip_license_key | MaxMind license (Password) |
 | geoip_host | Optional host override |
+| geoip_db_path | Optional local DB path |
 | inject_readonly_script | Enable UI enforcement |
 | bypass_admins | Bypass Administrator |
 | bypass_system_users | Bypass System Users |
