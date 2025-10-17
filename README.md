@@ -38,6 +38,88 @@ bench migrate
 6. (Optional) Extend:
    - Add hooks (`before_ip_fetch`, `restrict_geoip`) in your app.
 
+## MaxMind Local Database Setup
+
+For better performance and reduced API calls, use MaxMind's local database with automatic updates.
+
+### Prerequisites
+
+1. **MaxMind Account**: Sign up at [MaxMind](https://www.maxmind.com/en/geolite2/signup)
+2. **License Key**: Generate a license key for database downloads
+3. **GeoIP Update Tool**: Install the official updater
+
+### Database Options
+
+- **GeoLite2-Country** (Free): Basic country detection, ~99.8% accuracy
+- **GeoIP2-Country** (Premium): Enhanced accuracy ~99.99%, ISP data
+- **GeoIP2-Enterprise** (Premium): Maximum accuracy, threat intelligence
+
+### Installing GeoIP Update
+
+```bash
+sudo add-apt-repository ppa:maxmind/ppa
+sudo apt update
+sudo apt install geoipupdate
+```
+
+### Configuration
+
+1. **Create config file**:
+```bash
+sudo nano /etc/GeoIP.conf
+```
+
+2. **Add configuration** (replace with your Account ID and License Key):
+
+```ini
+AccountID YOUR_ACCOUNT_ID
+LicenseKey YOUR_LICENSE_KEY
+EditionIDs GeoLite2-Country
+DatabaseDirectory /var/lib/GeoIP
+```
+
+For premium databases, use:
+- `GeoIP2-Country` for GeoIP2 Premium
+- `GeoIP2-Enterprise` for Enterprise
+
+3. **Set permissions**:
+```bash
+sudo chmod 600 /etc/GeoIP.conf
+sudo mkdir -p /var/lib/GeoIP
+sudo chown -R frappe:frappe /var/lib/GeoIP
+```
+
+### Download & Configure
+
+1. **Download database**:
+```bash
+sudo geoipupdate -v
+```
+
+2. **Configure Frappe**:
+   - Go to GeoRestriction Settings
+   - Set IP Provider: "MaxMind DB"
+   - Set GeoIP DB Path:
+     - Free: `/var/lib/GeoIP/GeoLite2-Country.mmdb`
+     - Premium: `/var/lib/GeoIP/GeoIP2-Country.mmdb`
+     - Enterprise: `/var/lib/GeoIP/GeoIP2-Enterprise.mmdb`
+
+### Automatic Updates
+
+Add to cron for weekly updates:
+```bash
+sudo crontab -e
+# Add: Update every Tuesday at 2 AM
+0 2 * * 2 /usr/bin/geoipupdate
+```
+
+### Benefits
+
+- **Performance**: No API latency
+- **Reliability**: Works offline  
+- **Privacy**: No external API calls
+- **Accuracy**: Premium versions offer higher accuracy and additional data
+
 ## Core Feature Summary
 
 | Feature | Purpose |
