@@ -6,7 +6,7 @@ from .providers.maxmind import get_country_from_ip as maxmind_get_country_from_i
 from .providers.maxmind_db import get_country_from_ip as maxmind_db_get_country_from_ip
 
 
-def get_ip_address():
+def get_ip_address():  # TODO: This can be used across other apps to get IP address
 	if frappe.request:
 		headers = frappe.request.headers
 		if "X-Forwarded-For" in headers:
