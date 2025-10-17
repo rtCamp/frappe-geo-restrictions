@@ -113,12 +113,6 @@ sudo crontab -e
 0 2 * * 2 /usr/bin/geoipupdate
 ```
 
-### Benefits
-
-- **Performance**: No API latency
-- **Reliability**: Works offline  
-- **Privacy**: No external API calls
-- **Accuracy**: Premium versions offer higher accuracy and additional data
 
 ## Core Feature Summary
 
