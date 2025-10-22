@@ -1,0 +1,11 @@
+class ACCESS_MODES:
+	NO_ACCESS = 0
+	READ_ONLY = 1
+	FULL_ACCESS = 2
+
+
+ACCESS_TIER_CACHE_PREFIX = "access_cache:"
+IP_SETTINGS_CACHE_PREFIX = "ip_settings_cache:"
+
+BYPASS_USERS_CACHE_PREFIX = "georestriction_user_roles_bypass::"
+BYPASS_USERS_CACHE_TTL = 86400
