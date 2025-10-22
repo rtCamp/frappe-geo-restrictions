@@ -31,14 +31,15 @@
 	function shouldDisable(el) {
 		if (!(el instanceof HTMLElement)) return false;
 		if (el.closest(".disallow-in-readonly")) return true;
-		if (el.form && !el.closest(".allow-in-readonly")) return true;
-		return false;
+		if (el.closest(".allow-in-readonly")) return false;
+		return el.matches(TARGETS);
 	}
 
 	function process(root) {
-		if (!(root instanceof Element)) return;
+		if (!(root instanceof Element || root instanceof Document)) return;
 
-		if (root.matches(TARGETS) && shouldDisable(root)) disable(root);
+		if (root instanceof HTMLElement && root.matches(TARGETS) && shouldDisable(root))
+			disable(root);
 
 		root.querySelectorAll(TARGETS).forEach((el) => {
 			if (shouldDisable(el)) disable(el);
@@ -56,7 +57,6 @@
 		process(document);
 	}
 
-	// MutationObserver to re-apply disable logic to new nodes
 	const nodeObserver = new MutationObserver((muts) => {
 		for (const m of muts) {
 			m.addedNodes.forEach((n) => {
@@ -65,7 +65,6 @@
 		}
 	});
 
-	// Shared MutationObserver to monitor any re-enabling attempts
 	const attributeObserver = new MutationObserver((mutations) => {
 		for (const m of mutations) {
 			if (m.type === "attributes" && m.attributeName === "disabled") {
@@ -81,17 +80,6 @@
 		}
 	});
 
-	function init() {
-		applyAll();
-		nodeObserver.observe(document.body, { childList: true, subtree: true });
-		attributeObserver.observe(document.body, {
-			subtree: true,
-			attributes: true,
-			attributeFilter: ["disabled"],
-		});
-	}
-
-	// Delegated event handler to block interactions
 	function blockInteraction(e) {
 		const el = e.target;
 		if (
@@ -105,9 +93,20 @@
 		}
 	}
 
-	document.addEventListener("click", blockInteraction, true);
-	document.addEventListener("mousedown", blockInteraction, true);
-	document.addEventListener("keydown", blockInteraction, true);
+	function init() {
+		applyAll();
+
+		nodeObserver.observe(document.body, { childList: true, subtree: true });
+		attributeObserver.observe(document.body, {
+			subtree: true,
+			attributes: true,
+			attributeFilter: ["disabled"],
+		});
+
+		document.addEventListener("click", blockInteraction, true);
+		document.addEventListener("mousedown", blockInteraction, true);
+		document.addEventListener("keydown", blockInteraction, true);
+	}
 
 	if (document.readyState === "loading") {
 		document.addEventListener("DOMContentLoaded", init);
@@ -115,6 +114,5 @@
 		init();
 	}
 
-	// Manual reapply (idempotent)
 	window.__applyAccessTierBoundary = applyAll;
 })();
