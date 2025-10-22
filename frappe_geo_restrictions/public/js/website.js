@@ -32,7 +32,8 @@
 		if (!(el instanceof HTMLElement)) return false;
 		if (el.closest(".disallow-in-readonly")) return true;
 		if (el.closest(".allow-in-readonly")) return false;
-		return el.matches(TARGETS);
+		if (el.closest("form")) return true;
+		return false;
 	}
 
 	function process(root) {
