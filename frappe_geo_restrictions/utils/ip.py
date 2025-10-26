@@ -1,3 +1,5 @@
+import ipaddress
+
 import frappe
 from frappe.utils.caching import redis_cache
 
@@ -6,22 +8,45 @@ from .providers.maxmind import get_country_from_ip as maxmind_get_country_from_i
 from .providers.maxmind_db import get_country_from_ip as maxmind_db_get_country_from_ip
 
 
-def get_ip_address():  # TODO: This can be used across other apps to get IP address
-	if frappe.request:
-		headers = frappe.request.headers
-		if "X-Forwarded-For" in headers:
-			return headers["X-Forwarded-For"]
-		elif "X-Real-IP" in headers:
-			return headers["X-Real-IP"]
-		elif "HTTP_CLIENT_IP" in frappe.request.environ:
-			return frappe.request.environ["HTTP_CLIENT_IP"]
-		elif "HTTP_X_FORWARDED_FOR" in frappe.request.environ:
-			return frappe.request.environ["HTTP_X_FORWARDED_FOR"]
-		elif "HTTP_X_FORWARDED" in frappe.request.environ:
-			return frappe.request.environ["HTTP_X_FORWARDED"]
-		else:
-			return frappe.request.remote_addr
-	return None
+def get_ip_address():
+	"""
+	Retrieve the real IP address of the client making the request,
+	considering various proxy headers (Cloudflare, Nginx, etc.).
+	"""
+	if not frappe.request:
+		return None
+
+	headers = frappe.request.headers
+	environ = frappe.request.environ
+
+	# Order of trust: Cloudflare > X-Forwarded-For > X-Real-IP > fallback
+	ip_sources = [
+		headers.get("CF-Connecting-IP"),  # Cloudflare
+		headers.get("X-Forwarded-For"),  # Could be a list of IPs
+		headers.get("X-Real-IP"),
+		environ.get("HTTP_CLIENT_IP"),
+		environ.get("HTTP_X_FORWARDED_FOR"),
+		environ.get("HTTP_X_FORWARDED"),
+		frappe.request.remote_addr,
+	]
+
+	for ip in ip_sources:
+		if not ip:
+			continue
+
+		# Some headers (e.g. X-Forwarded-For) may contain multiple IPs
+		# like: "198.51.100.1, 10.0.0.1"
+		ip = ip.split(",")[0].strip()
+
+		# Optional: validate it's a public IP (not internal Docker/localhost)
+		try:
+			parsed_ip = ipaddress.ip_address(ip)
+			if not parsed_ip.is_private and not parsed_ip.is_loopback:
+				return ip  # Return first public, non-local IP
+		except ValueError:
+			continue  # Skip invalid IPs
+
+	return None  # If nothing valid found
 
 
 def get_country_from_ip(ip_address: str, user: str | None = None):
