@@ -66,7 +66,7 @@ def _normalize_access_tier(value) -> int:
 	Convert DB / string value to ACCESS_MODES constant.
 	Defaults to FULL_ACCESS on unknown input.
 	"""
-	if not value:
+	if value is None:
 		return ACCESS_MODES.FULL_ACCESS
 	if isinstance(value, int):
 		if value in (ACCESS_MODES.NO_ACCESS, ACCESS_MODES.READ_ONLY, ACCESS_MODES.FULL_ACCESS):
@@ -178,7 +178,9 @@ class GeoRestrictedError(HTTPException):
 
 	def __init__(self, description=None):
 		if description is None:
-			description = _("You do not have access to this site from your current location.")
+			description = _(
+				"You do not have access to this site."
+			)  # Question: Do we need to show users exactly why they are blocked? like "Access from your location is restricted."
 		super().__init__(description=description)
 
 
