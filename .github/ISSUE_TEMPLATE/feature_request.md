@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest a new idea or feature for ERP
+about: Suggest a new idea or feature for Frappe Geo Restrictions
 labels: Feature-Request
 ---
 
