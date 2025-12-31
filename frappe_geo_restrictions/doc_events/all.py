@@ -1,6 +1,6 @@
 import frappe
-from frappe.utils.user import is_website_user
 
+from frappe_geo_restrictions.utils import should_bypass_ip_restrictions
 from frappe_geo_restrictions.utils.constants import ACCESS_MODES
 
 
@@ -16,7 +16,7 @@ def before_validate(doc, method=None):
 		return
 
 	user = getattr(frappe.session, "user", None)
-	if not user or not is_website_user(user):
+	if not user or should_bypass_ip_restrictions(user):
 		return
 
 	access_type = getattr(frappe.flags, "access_type", ACCESS_MODES.FULL_ACCESS)

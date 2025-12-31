@@ -1,9 +1,11 @@
+import json
 import re
 
 import frappe
 from frappe import _
 from frappe.utils.user import is_website_user
 from werkzeug.exceptions import HTTPException
+from werkzeug.wrappers import Response
 
 from frappe_geo_restrictions.utils.constants import (
 	ACCESS_MODES,
@@ -11,6 +13,7 @@ from frappe_geo_restrictions.utils.constants import (
 	BYPASS_USERS_CACHE_PREFIX,
 	BYPASS_USERS_CACHE_TTL,
 	IP_SETTINGS_CACHE_PREFIX,
+	CustomNoAccess,
 )
 from frappe_geo_restrictions.utils.ip import get_country_from_ip, get_ip_address
 
@@ -33,8 +36,20 @@ def should_bypass_ip_restrictions(user: str) -> bool:
 	The final boolean decision is cached (per user) for BYPASS_USERS_CACHE_TTL seconds.
 	Cache is invalidated via invalidate_bypass_users_cache().
 	"""
+	path = frappe.request.path if hasattr(frappe, "request") else None
+
 	if not user:
 		user = frappe.session.user if hasattr(frappe, "session") else "Guest"
+
+	override_hooks = frappe.get_hooks("bypass_ip_restrictions") or []
+	for method_path in override_hooks:
+		try:
+			method = frappe.get_attr(method_path)
+			result = method(user=user, path=path)
+			if result is not None:
+				return result
+		except Exception:
+			frappe.log_error(frappe.get_traceback(), "bypass_ip_restrictions hook failure")
 
 	cache_key = f"{BYPASS_USERS_CACHE_PREFIX}{user}"
 	cached = frappe.cache().get_value(cache_key)
@@ -68,6 +83,9 @@ def _normalize_access_tier(value) -> int:
 	"""
 	if value is None:
 		return ACCESS_MODES.FULL_ACCESS
+	if isinstance(value, CustomNoAccess):
+		frappe.local.custom_no_access_data = value
+		return ACCESS_MODES.NO_ACCESS
 	if isinstance(value, int):
 		if value in (ACCESS_MODES.NO_ACCESS, ACCESS_MODES.READ_ONLY, ACCESS_MODES.FULL_ACCESS):
 			return value
@@ -137,6 +155,9 @@ def _apply_restrict_geoip_hooks(access_type: int, ip_address: str, country: str,
 			normalized = _normalize_access_tier(result)
 			# Choose the most restrictive between current and hook result
 			access_type = _most_restrictive(access_type, normalized)
+			if access_type == ACCESS_MODES.NO_ACCESS:
+				# Short-circuit: no further relaxation possible
+				break
 		except Exception:
 			frappe.log_error(frappe.get_traceback(), "restrict_geoip hook execution failure")
 	return access_type
@@ -184,12 +205,25 @@ class GeoRestrictedError(HTTPException):
 		super().__init__(description=description)
 
 
+class CustomGeoRestrictedError(HTTPException):
+	def __init__(self, response):
+		response.headers["X-Geo-Restricted"] = "1"
+		super().__init__(response=response)
+
+
 def before_request():
 	settings = get_ip_settings()
 	if not settings.enabled:
 		return
 
-	user = getattr(frappe.session, "user", None)
+	path = frappe.request.path if hasattr(frappe, "request") else None
+	if path and path in ["/logout", "/api/method/logout", "/login"]:  # Treat login/logout paths as Guest
+		user = "Guest"
+	else:
+		user = getattr(frappe.session, "user", None)
+
+	if user and should_bypass_ip_restrictions(user):
+		return
 
 	ip = get_ip_address()
 
@@ -197,9 +231,61 @@ def before_request():
 	frappe.flags.access_type = access_type  # numeric ACCESS_MODES value
 
 	if access_type == ACCESS_MODES.NO_ACCESS:
-		raise GeoRestrictedError()
+		no_access_data = None
+		if hasattr(frappe.local, "custom_no_access_data"):
+			no_access_data = frappe.local.custom_no_access_data
 
-	if access_type == ACCESS_MODES.READ_ONLY and user and user != "Guest":
+		title = no_access_data.title if no_access_data else _("Access Denied")
+		description = (
+			no_access_data.description if no_access_data else _("You do not have access to this site.")
+		)
+		status_code = no_access_data.status_code if no_access_data else 403
+
+		# check if request accepts a json
+		if frappe.request.accept_mimetypes.best == "application/json":
+			message = {
+				"message": description,
+				"title": title,
+				"indicator": "red",
+			}
+			response = {
+				"exc_type": "GeoRestrictedError",
+				"_server_messages": json.dumps([json.dumps(message)]),
+			}
+			raise CustomGeoRestrictedError(
+				Response(json.dumps(response), status=status_code, mimetype="application/json")
+			)
+
+		overriden_template = no_access_data.custom_template if no_access_data else None
+		if not overriden_template:
+			georestriction_no_access_template = frappe.get_hooks("georestriction_no_access_template")
+			if georestriction_no_access_template:
+				overriden_template = georestriction_no_access_template[0]
+
+		if overriden_template:
+			response = frappe.render_template(
+				overriden_template,
+				{
+					"title": title,
+					"description": description,
+					"status_code": status_code,
+					"is_logged_in": frappe.session.user != "Guest",
+				},
+			)
+			raise CustomGeoRestrictedError(Response(response, status=status_code, mimetype="text/html"))
+
+		response = frappe.render_template(
+			"frappe_geo_restrictions/templates/blocked-user/index.html",
+			{
+				"title": title,
+				"description": description,
+				"status_code": status_code,
+				"is_logged_in": frappe.session.user != "Guest",
+			},
+		)
+		raise CustomGeoRestrictedError(Response(response, status=status_code, mimetype="text/html"))
+
+	if access_type == ACCESS_MODES.READ_ONLY:
 		frappe.flags.read_only = True
 
 

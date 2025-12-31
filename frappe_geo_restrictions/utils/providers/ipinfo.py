@@ -4,10 +4,7 @@ import requests
 
 def get_country_from_ip(ip_address, settings) -> str | None:
 	try:
-		try:
-			token = settings.get_password("ipinfo_token")
-		except Exception:
-			token = getattr(settings, "ipinfo_token", None)
+		token = settings.get_password("ipinfo_token") if settings.get("ipinfo_token") else None
 
 		base_url = f"https://ipinfo.io/{ip_address}"
 		if token:
