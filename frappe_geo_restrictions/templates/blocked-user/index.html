@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .error-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 60px 40px;
+            text-align: center;
+        }
+        .status-code {
+            font-size: 72px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+        .error-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 16px;
+        }
+        .error-description {
+            font-size: 16px;
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e0;
+            transform: translateY(-2px);
+        }
+        .user-info {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #a0aec0;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="status-code">{{ status_code }}</div>
+        <h1 class="error-title">{{ title }}</h1>
+        <p class="error-description">{{ description }}</p>
+
+        <div class="button-group">
+            <a href="/" class="btn btn-primary">Go to Homepage</a>
+            {% if is_logged_in %}
+            <a href="/app" class="btn btn-secondary">Go to Dashboard</a>
+            {% else %}
+            <a href="/login" class="btn btn-secondary">Login</a>
+            {% endif %}
+        </div>
+
+        {% if is_logged_in %}
+        <div class="user-info">
+            You are currently logged in
+            <div style="margin-top: 12px;">
+                <a id="logout_button" href="/api/method/logout" class="btn btn-secondary" style="font-size: 13px; padding: 8px 16px;">Logout</a>
+            </div>
+        </div>
+        <script>
+            document.getElementById("logout_button").addEventListener("click", function(event) {
+                event.preventDefault();
+                fetch("/api/method/logout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.home_page) {
+                        window.location.href = data.home_page;
+                    } else {
+                        window.location.href = "/";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error during logout:", error);
+                    window.location.href = "/";
+                });
+            });
+        </script>
+        {% endif %}
+    </div>
+</body>
+</html>
