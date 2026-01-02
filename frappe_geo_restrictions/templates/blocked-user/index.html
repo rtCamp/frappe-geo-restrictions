@@ -114,7 +114,7 @@
             document.getElementById("logout_button").addEventListener("click", function(event) {
                 event.preventDefault();
                 fetch("/api/method/logout", {
-                    method: "POST",
+                    method: "GET",
                     headers: {
                         "Content-Type": "application/json",
                     }
