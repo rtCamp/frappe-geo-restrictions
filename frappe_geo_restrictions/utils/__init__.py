@@ -262,25 +262,19 @@ def before_request():
 			if georestriction_no_access_template:
 				overriden_template = georestriction_no_access_template[0]
 
-		if overriden_template:
-			response = frappe.render_template(
-				overriden_template,
-				{
-					"title": title,
-					"description": description,
-					"status_code": status_code,
-					"is_logged_in": frappe.session.user != "Guest",
-				},
-			)
-			raise CustomGeoRestrictedError(Response(response, status=status_code, mimetype="text/html"))
+		template_path = overriden_template or "frappe_geo_restrictions/templates/blocked-user/index.html"
+
+		csrf_token = frappe.sessions.get_csrf_token()
+		frappe.db.commit()  # nosemgrep
 
 		response = frappe.render_template(
-			"frappe_geo_restrictions/templates/blocked-user/index.html",
+			template_path,
 			{
 				"title": title,
 				"description": description,
 				"status_code": status_code,
 				"is_logged_in": frappe.session.user != "Guest",
+				"csrf_token": csrf_token,
 			},
 		)
 		raise CustomGeoRestrictedError(Response(response, status=status_code, mimetype="text/html"))
