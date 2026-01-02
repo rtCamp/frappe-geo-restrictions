@@ -114,9 +114,11 @@
             document.getElementById("logout_button").addEventListener("click", function(event) {
                 event.preventDefault();
                 fetch("/api/method/logout", {
-                    method: "GET",
+                    method: "POST",
                     headers: {
                         "Content-Type": "application/json",
+                        "X-Frappe-CSRF-Token": "{{csrf_token}}",
+                        "X-Frappe-Site-Name": window.location.hostname,
                     }
                 })
                 .then(response => response.json())
