@@ -9,7 +9,7 @@
 		const b = document.createElement("div");
 		b.dataset.testid = "readonly-banner";
 		b.className =
-			"bg-warning text-orange-400 border-orange-300 border-b px-4 py-2 text-sm font-guardian-medium text-center";
+			"bg-orange-100 text-yellow-800 border-yellow-500 border-b px-4 py-3 text-sm font-guardian-medium text-center flex-shrink-0 shadow-sm";
 		b.textContent = "You currently have read-only access to this site.";
 		document.body.insertBefore(b, document.body.firstChild || null);
 	}
