@@ -1,5 +1,5 @@
-app_name = "frappe_ip_ban"
-app_title = "Frappe IP Ban"
+app_name = "frappe_geo_restrictions"
+app_title = "Frappe Geo Restrictions"
 app_publisher = "rtCamp"
 app_description = "Restrict user accesses based on location from IP Address"
 app_email = "frappe@rtcamp.com"
@@ -13,27 +13,38 @@ app_license = "agpl-3.0"
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
 # 	{
-# 		"name": "frappe_ip_ban",
-# 		"logo": "/assets/frappe_ip_ban/logo.png",
-# 		"title": "Frappe IP Ban",
-# 		"route": "/frappe_ip_ban",
-# 		"has_permission": "frappe_ip_ban.api.permission.has_app_permission"
+# 		"name": "frappe_geo_restrictions",
+# 		"logo": "/assets/frappe_geo_restrictions/logo.png",
+# 		"title": "Frappe Geo Restrictions",
+# 		"route": "/frappe_geo_restrictions",
+# 		"has_permission": "frappe_geo_restrictions.api.permission.has_app_permission"
 # 	}
 # ]
+
+fixtures = [
+	{
+		"dt": "Property Setter",
+		"filters": [["module", "in", ["Frappe Geo Restrictions"]]],
+	},
+	{
+		"dt": "Custom Field",
+		"filters": [["module", "in", ["Frappe Geo Restrictions"]]],
+	},
+]
 
 # Includes in <head>
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/frappe_ip_ban/css/frappe_ip_ban.css"
-# app_include_js = "/assets/frappe_ip_ban/js/frappe_ip_ban.js"
+# app_include_css = "/assets/frappe_geo_restrictions/css/frappe_geo_restrictions.css"
+# app_include_js = "/assets/frappe_geo_restrictions/js/frappe_geo_restrictions.js"
 
 # include js, css files in header of web template
-# web_include_css = "/assets/frappe_ip_ban/css/frappe_ip_ban.css"
-# web_include_js = "/assets/frappe_ip_ban/js/frappe_ip_ban.js"
+# web_include_css = "/assets/frappe_geo_restrictions/css/frappe_geo_restrictions.css"
+# web_include_js = "/assets/frappe_geo_restrictions/js/frappe_geo_restrictions.js"
 
 # include custom scss in every website theme (without file extension ".scss")
-# website_theme_scss = "frappe_ip_ban/public/scss/website"
+# website_theme_scss = "frappe_geo_restrictions/public/scss/website"
 
 # include js, css files in header of web form
 # webform_include_js = {"doctype": "public/js/doctype.js"}
@@ -51,7 +62,7 @@ app_license = "agpl-3.0"
 # Svg Icons
 # ------------------
 # include app icons in desk
-# app_include_icons = "frappe_ip_ban/public/icons.svg"
+# app_include_icons = "frappe_geo_restrictions/public/icons.svg"
 
 # Home Pages
 # ----------
@@ -78,43 +89,43 @@ app_license = "agpl-3.0"
 
 # add methods and filters to jinja environment
 # jinja = {
-# 	"methods": "frappe_ip_ban.utils.jinja_methods",
-# 	"filters": "frappe_ip_ban.utils.jinja_filters"
+# 	"methods": "frappe_geo_restrictions.utils.jinja_methods",
+# 	"filters": "frappe_geo_restrictions.utils.jinja_filters"
 # }
 
 # Installation
 # ------------
 
-# before_install = "frappe_ip_ban.install.before_install"
-# after_install = "frappe_ip_ban.install.after_install"
+# before_install = "frappe_geo_restrictions.install.before_install"
+# after_install = "frappe_geo_restrictions.install.after_install"
 
 # Uninstallation
 # ------------
 
-# before_uninstall = "frappe_ip_ban.uninstall.before_uninstall"
-# after_uninstall = "frappe_ip_ban.uninstall.after_uninstall"
+# before_uninstall = "frappe_geo_restrictions.uninstall.before_uninstall"
+# after_uninstall = "frappe_geo_restrictions.uninstall.after_uninstall"
 
 # Integration Setup
 # ------------------
 # To set up dependencies/integrations with other apps
 # Name of the app being installed is passed as an argument
 
-# before_app_install = "frappe_ip_ban.utils.before_app_install"
-# after_app_install = "frappe_ip_ban.utils.after_app_install"
+# before_app_install = "frappe_geo_restrictions.utils.before_app_install"
+# after_app_install = "frappe_geo_restrictions.utils.after_app_install"
 
 # Integration Cleanup
 # -------------------
 # To clean up dependencies/integrations with other apps
 # Name of the app being uninstalled is passed as an argument
 
-# before_app_uninstall = "frappe_ip_ban.utils.before_app_uninstall"
-# after_app_uninstall = "frappe_ip_ban.utils.after_app_uninstall"
+# before_app_uninstall = "frappe_geo_restrictions.utils.before_app_uninstall"
+# after_app_uninstall = "frappe_geo_restrictions.utils.after_app_uninstall"
 
 # Desk Notifications
 # ------------------
 # See frappe.core.notifications.get_notification_config
 
-# notification_config = "frappe_ip_ban.notifications.get_notification_config"
+# notification_config = "frappe_geo_restrictions.notifications.get_notification_config"
 
 # Permissions
 # -----------
@@ -123,61 +134,71 @@ app_license = "agpl-3.0"
 # permission_query_conditions = {
 # 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+
+has_permission = {
+	"*": "frappe_geo_restrictions.utils.has_permission",
+}
 
 # Document Events
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"*": {
+		"before_validate": "frappe_geo_restrictions.doc_events.all.before_validate",
+	},
+	"Country": {
+		"on_change": "frappe_geo_restrictions.utils.cache_invalidation.clear_countries_cache",
+	},
+	"GeoRestriction Settings": {
+		"on_change": "frappe_geo_restrictions.utils.cache_invalidation.invalidate_ip_settings_cache",
+	},
+	"User": {
+		"on_change": "frappe_geo_restrictions.utils.cache_invalidation.on_user_and_role_change",
+	},
+	"Role": {
+		"on_change": "frappe_geo_restrictions.utils.cache_invalidation.on_user_and_role_change",
+	},
+}
 
 # Scheduled Tasks
 # ---------------
 
 # scheduler_events = {
 # 	"all": [
-# 		"frappe_ip_ban.tasks.all"
+# 		"frappe_geo_restrictions.tasks.all"
 # 	],
 # 	"daily": [
-# 		"frappe_ip_ban.tasks.daily"
+# 		"frappe_geo_restrictions.tasks.daily"
 # 	],
 # 	"hourly": [
-# 		"frappe_ip_ban.tasks.hourly"
+# 		"frappe_geo_restrictions.tasks.hourly"
 # 	],
 # 	"weekly": [
-# 		"frappe_ip_ban.tasks.weekly"
+# 		"frappe_geo_restrictions.tasks.weekly"
 # 	],
 # 	"monthly": [
-# 		"frappe_ip_ban.tasks.monthly"
+# 		"frappe_geo_restrictions.tasks.monthly"
 # 	],
 # }
 
 # Testing
 # -------
 
-# before_tests = "frappe_ip_ban.install.before_tests"
+# before_tests = "frappe_geo_restrictions.install.before_tests"
 
 # Overriding Methods
 # ------------------------------
 #
 # override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "frappe_ip_ban.event.get_events"
+# 	"frappe.desk.doctype.event.event.get_events": "frappe_geo_restrictions.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-# 	"Task": "frappe_ip_ban.task.get_dashboard_data"
+# 	"Task": "frappe_geo_restrictions.task.get_dashboard_data"
 # }
 
 # exempt linked doctypes from being automatically cancelled
@@ -191,13 +212,13 @@ app_license = "agpl-3.0"
 
 # Request Events
 # ----------------
-# before_request = ["frappe_ip_ban.utils.before_request"]
-# after_request = ["frappe_ip_ban.utils.after_request"]
+before_request = ["frappe_geo_restrictions.utils.before_request"]
+after_request = ["frappe_geo_restrictions.utils.after_request"]
 
 # Job Events
 # ----------
-# before_job = ["frappe_ip_ban.utils.before_job"]
-# after_job = ["frappe_ip_ban.utils.after_job"]
+# before_job = ["frappe_geo_restrictions.utils.before_job"]
+# after_job = ["frappe_geo_restrictions.utils.after_job"]
 
 # User Data Protection
 # --------------------
@@ -227,13 +248,14 @@ app_license = "agpl-3.0"
 # --------------------------------
 
 # auth_hooks = [
-# 	"frappe_ip_ban.auth.validate"
+# 	"frappe_geo_restrictions.auth.validate"
 # ]
 
 # Automatically update python controller files with type annotations for this app.
-# export_python_type_annotations = True
+export_python_type_annotations = True
 
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+extend_bootinfo = "frappe_geo_restrictions.context.boot_session"

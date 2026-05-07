@@ -1,0 +1,143 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-09-29 10:09:20.771780",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "section_break_wagb",
+  "ip_provider",
+  "ipinfo_token",
+  "geoip_host",
+  "geoip_db_path",
+  "geoip_account_id",
+  "geoip_license_key",
+  "column_break_xkwb",
+  "bypass_admins",
+  "bypass_system_users",
+  "bypass_guest_users",
+  "bypass_role_based",
+  "bypass_roles",
+  "inject_readonly_script"
+ ],
+ "fields": [
+  {
+   "depends_on": "eval:doc.ip_provider===\"MaxMind API\";",
+   "fieldname": "geoip_account_id",
+   "fieldtype": "Data",
+   "label": "GeoIP Account ID"
+  },
+  {
+   "depends_on": "eval:doc.ip_provider===\"MaxMind API\";",
+   "fieldname": "geoip_license_key",
+   "fieldtype": "Password",
+   "label": "GeoIP License Key"
+  },
+  {
+   "default": "geolite.info",
+   "depends_on": "eval:doc.ip_provider===\"MaxMind API\";",
+   "fieldname": "geoip_host",
+   "fieldtype": "Data",
+   "label": "GeoIP Host"
+  },
+  {
+   "default": "IPInfo.io",
+   "fieldname": "ip_provider",
+   "fieldtype": "Select",
+   "label": "IP Provider",
+   "options": "IPInfo.io\nMaxMind API\nMaxMind DB"
+  },
+  {
+   "depends_on": "eval:doc.ip_provider===\"IPInfo.io\";",
+   "description": "Leave empty to use free tier.",
+   "fieldname": "ipinfo_token",
+   "fieldtype": "Password",
+   "label": "IPInfo Token"
+  },
+  {
+   "fieldname": "column_break_xkwb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "bypass_admins",
+   "fieldtype": "Check",
+   "label": "Bypass Geo Restrictions for Administrator"
+  },
+  {
+   "default": "1",
+   "fieldname": "bypass_system_users",
+   "fieldtype": "Check",
+   "label": "Bypass Geo Restrictions for System Users"
+  },
+  {
+   "default": "0",
+   "fieldname": "bypass_role_based",
+   "fieldtype": "Check",
+   "label": "Bypass Geo Restrictions based on Roles"
+  },
+  {
+   "depends_on": "bypass_role_based",
+   "description": "If user has any one of these roles, he will be bypassed from Gro Restrictions",
+   "fieldname": "bypass_roles",
+   "fieldtype": "Table MultiSelect",
+   "label": "Roles to bypass",
+   "options": "User Role"
+  },
+  {
+   "default": "0",
+   "fieldname": "bypass_guest_users",
+   "fieldtype": "Check",
+   "label": "Bypass Geo Restrictions for Guest User"
+  },
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enable Geo Restrictions"
+  },
+  {
+   "depends_on": "enabled",
+   "fieldname": "section_break_wagb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "inject_readonly_script",
+   "fieldtype": "Check",
+   "label": "Inject readonly script to website pages"
+  },
+  {
+   "depends_on": "eval:doc.ip_provider===\"MaxMind DB\";",
+   "fieldname": "geoip_db_path",
+   "fieldtype": "Data",
+   "label": "GeoIP DB Path"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-10-16 04:45:12.505861",
+ "modified_by": "Administrator",
+ "module": "Frappe Geo Restrictions",
+ "name": "GeoRestriction Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
