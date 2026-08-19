@@ -9,6 +9,7 @@
   "section_break_wagb",
   "ip_provider",
   "ipinfo_token",
+  "use_free_api",
   "geoip_host",
   "geoip_db_path",
   "geoip_account_id",
@@ -50,10 +51,18 @@
   },
   {
    "depends_on": "eval:doc.ip_provider===\"IPInfo.io\";",
-   "description": "Leave empty to use free tier.",
+   "description": "Leave empty to use the free tier, which also needs \"Use Free API\" enabled below.",
    "fieldname": "ipinfo_token",
    "fieldtype": "Password",
    "label": "IPInfo Token"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.ip_provider===\"IPInfo.io\";",
+   "description": "Call the free (unauthenticated, rate-limited) IPInfo endpoint when no token is set. Off means no lookup request is made at all and every IP resolves to no country.",
+   "fieldname": "use_free_api",
+   "fieldtype": "Check",
+   "label": "Use Free API"
   },
   {
    "fieldname": "column_break_xkwb",
