@@ -28,6 +28,7 @@ class GeoRestrictionSettings(Document):
 		inject_readonly_script: DF.Check
 		ip_provider: DF.Literal["IPInfo.io", "MaxMind API", "MaxMind DB"]
 		ipinfo_token: DF.Password | None
+		use_free_api: DF.Check
 	# end: auto-generated types
 
 	pass

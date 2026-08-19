@@ -6,6 +6,11 @@ def get_country_from_ip(ip_address, settings) -> str | None:
 	try:
 		token = settings.get_password("ipinfo_token") if settings.get("ipinfo_token") else None
 
+		# Without a token the endpoint is still reachable, but only as the rate-limited free
+		# tier: an outbound call on the request path that mostly 429s. Opt in explicitly.
+		if not token and not settings.get("use_free_api"):
+			return None
+
 		base_url = f"https://ipinfo.io/{ip_address}"
 		if token:
 			url = f"{base_url}?token={token}"
