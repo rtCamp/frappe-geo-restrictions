@@ -174,7 +174,7 @@ def _get_country_access_type(ip_address: str, user=None) -> int:
 		base_access = ACCESS_MODES.FULL_ACCESS
 
 	if should_bypass_ip_restrictions(user):
-		base_access = ACCESS_MODES.FULL_ACCESS
+		return ACCESS_MODES.FULL_ACCESS
 
 	country_raw = get_country_from_ip(ip_address, user) or ""
 	country = country_raw.lower()
