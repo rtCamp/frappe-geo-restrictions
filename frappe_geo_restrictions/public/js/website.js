@@ -82,12 +82,8 @@
 	});
 
 	function blockInteraction(e) {
-		const el = e.target;
-		if (
-			el instanceof HTMLElement &&
-			el.matches(TARGETS) &&
-			el.dataset.readonlyEnforced === "1"
-		) {
+		const el = e.target instanceof Element ? e.target.closest(TARGETS) : null;
+		if (el instanceof HTMLElement && el.dataset.readonlyEnforced === "1") {
 			if (!el.disabled) el.disabled = true;
 			e.stopImmediatePropagation();
 			e.preventDefault();
@@ -104,6 +100,7 @@
 			attributeFilter: ["disabled"],
 		});
 
+		document.addEventListener("pointerdown", blockInteraction, true);
 		document.addEventListener("click", blockInteraction, true);
 		document.addEventListener("mousedown", blockInteraction, true);
 		document.addEventListener("keydown", blockInteraction, true);
